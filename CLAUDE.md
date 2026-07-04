@@ -23,14 +23,17 @@ There is no test suite and no test runner configured in this repo.
 This is a minimal, single-screen Vite + React 19 app — there is no routing, no state management library, and no backend/API layer.
 
 - `src/main.jsx` — entry point, mounts `App` into `#root` under `StrictMode`.
-- `src/App.jsx` — the entire application. All state (transactions, form fields, filters), derived values (totals, balance, filtered list), and JSX markup live in this one component. There are no sub-components yet.
+- `src/App.jsx` — top-level component. Owns only the `transactions` state and the fixed `categories` list, plus a `handleAddTransaction` callback that appends a new transaction. Composes the three components below; no calculation or filtering logic lives here anymore.
+- `src/Summary.jsx` — receives `transactions` as a prop and derives `totalIncome`, `totalExpenses`, and `balance` internally via `reduce`. Renders the three summary cards.
+- `src/TransactionForm.jsx` — owns its own local state for the form fields (`description`, `amount`, `type`, `category`). On submit, builds the new transaction object (including `id: Date.now()` and today's `date`) and calls the `onAddTransaction` prop rather than mutating `transactions` directly; resets its own fields afterward.
+- `src/TransactionList.jsx` — owns `filterType`/`filterCategory` state, filters the `transactions` prop client-side (no memoization), and renders the filter selects plus the transactions table.
 - `src/App.css` / `src/index.css` — styling, plain CSS (no CSS-in-JS, no Tailwind).
 
-State shape: `transactions` is an array of `{ id, description, amount, type, category, date }`, seeded with hardcoded sample data in `useState`. `amount` is stored as a **string**, not a number — this matters when doing arithmetic (e.g. summing income/expenses via `reduce`).
+Data flow is one-way, standard "lift state up" pattern: `App` holds the single source of truth (`transactions`), passes it down as props to `Summary`/`TransactionList`, and receives new entries back up from `TransactionForm` via the `onAddTransaction` callback prop. `categories` is likewise owned by `App` and passed down to both `TransactionForm` and `TransactionList`.
 
-`type` is `"income" | "expense"`; `category` is a free-form string drawn from the fixed `categories` array in `App.jsx`.
+State shape: `transactions` is an array of `{ id, description, amount, type, category, date }`. The seeded sample data in `App.jsx` uses numeric `amount` values, but transactions added through `TransactionForm` store `amount` as a **string** (raw value from the number input) — this inconsistency matters if arithmetic is ever done directly on `t.amount` without coercion.
 
-Filtering (`filterType`, `filterCategory`) is applied client-side by deriving `filteredTransactions` from `transactions` on every render — there's no memoization.
+`type` is `"income" | "expense"`; `category` is a free-form string drawn from the fixed `categories` array owned by `App.jsx`.
 
 ## Linting
 
