@@ -1,6 +1,16 @@
-import { PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer } from 'recharts'
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Cell, ResponsiveContainer } from 'recharts'
+import { categoryColor } from './categoryColors'
 
-const COLORS = ['#8884d8', '#82ca9d', '#ffc658', '#ff7f7f', '#8dd1e1', '#d88484', '#a4de6c'];
+function ChartTooltip({ active, payload }) {
+  if (!active || !payload?.length) return null;
+  const { name, value } = payload[0].payload;
+  return (
+    <div className="chart-tooltip">
+      <span className="chart-tooltip-label">{name}</span>
+      <span className="chart-tooltip-value">${value}</span>
+    </div>
+  );
+}
 
 function SpendingChart({ transactions }) {
   const expensesByCategory = transactions
@@ -17,22 +27,39 @@ function SpendingChart({ transactions }) {
   }));
 
   if (data.length === 0) {
-    return null;
+    return (
+      <div className="glass chart-card">
+        <h2 className="card-heading">Spending by Category</h2>
+        <p className="chart-empty">Nothing to chart yet. Categories will appear here once you log an expense.</p>
+      </div>
+    );
   }
 
   return (
-    <div className="category-chart">
-      <h2>Spending by Category</h2>
+    <div className="glass chart-card">
+      <h2 className="card-heading">Spending by Category</h2>
       <ResponsiveContainer width="100%" height={300}>
-        <PieChart>
-          <Pie data={data} dataKey="value" nameKey="name" outerRadius={100} label>
-            {data.map((entry, index) => (
-              <Cell key={entry.name} fill={COLORS[index % COLORS.length]} />
+        <BarChart data={data} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
+          <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.06)" vertical={false} />
+          <XAxis
+            dataKey="name"
+            tick={{ fill: '#8891a6', fontSize: 12, fontFamily: 'Outfit' }}
+            axisLine={{ stroke: 'rgba(255,255,255,0.08)' }}
+            tickLine={false}
+          />
+          <YAxis
+            tick={{ fill: '#8891a6', fontSize: 12, fontFamily: 'JetBrains Mono' }}
+            axisLine={false}
+            tickLine={false}
+            tickFormatter={(v) => `$${v}`}
+          />
+          <Tooltip content={<ChartTooltip />} cursor={{ fill: 'rgba(255,255,255,0.04)' }} />
+          <Bar dataKey="value" radius={[6, 6, 0, 0]}>
+            {data.map((entry) => (
+              <Cell key={entry.name} fill={categoryColor(entry.name)} />
             ))}
-          </Pie>
-          <Tooltip formatter={(value) => `$${value}`} />
-          <Legend />
-        </PieChart>
+          </Bar>
+        </BarChart>
       </ResponsiveContainer>
     </div>
   );

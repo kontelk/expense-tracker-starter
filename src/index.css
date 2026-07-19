@@ -4,8 +4,52 @@
   box-sizing: border-box;
 }
 
+:root {
+  --bg: #0a0e17;
+  --surface: rgba(255, 255, 255, 0.04);
+  --surface-border: rgba(255, 255, 255, 0.08);
+  --text: #e8ebf2;
+  --text-muted: #8891a6;
+
+  --income: #34d399;
+  --expense: #fb4570;
+  --balance: #7c6cf6;
+
+  --cat-food: #fb4570;
+  --cat-housing: #6366f1;
+  --cat-utilities: #f5a623;
+  --cat-transport: #10b981;
+  --cat-entertainment: #a78bfa;
+  --cat-salary: #34d399;
+  --cat-other: #94a3b8;
+
+  --font-ui: "Outfit", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", "Courier New", monospace;
+}
+
 body {
-  font-family: Arial, sans-serif;
-  background-color: #ffffff;
-  color: #333;
+  font-family: var(--font-ui);
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  background-image:
+    radial-gradient(ellipse 900px 500px at 15% -10%, rgba(124, 108, 246, 0.16), transparent 60%),
+    radial-gradient(ellipse 700px 500px at 100% 10%, rgba(52, 211, 153, 0.1), transparent 55%),
+    radial-gradient(ellipse 800px 600px at 50% 100%, rgba(251, 69, 112, 0.08), transparent 60%);
+  background-attachment: fixed;
+}
+
+:focus-visible {
+  outline: 2px solid var(--balance);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
 }
