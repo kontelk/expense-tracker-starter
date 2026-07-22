@@ -25,7 +25,7 @@ This is a minimal, single-screen Vite + React 19 app — there is no routing, no
 - `src/main.jsx` — entry point, mounts `App` into `#root` under `StrictMode`.
 - `src/App.jsx` — top-level component. Owns only the `transactions` state and the fixed `categories` list, plus `handleAddTransaction` (appends a new transaction) and `handleDeleteTransaction` (filters a transaction out by `id`) callbacks. Composes the four components below; no calculation or filtering logic lives here anymore.
 - `src/Summary.jsx` — receives `transactions` as a prop and derives `totalIncome`, `totalExpenses`, and `balance` internally via `reduce`. Renders the three summary cards.
-- `src/SpendingChart.jsx` — receives `transactions` as a prop, derives expense totals per `category` via `reduce`, and renders them as a `recharts` `PieChart` (with `Cell`, `Tooltip`, `Legend`, wrapped in `ResponsiveContainer`). Renders nothing (`null`) when there are no expense transactions.
+- `src/SpendingChart.jsx` — receives `transactions` as a prop, derives expense totals per `category` via `reduce`, and renders them as a `recharts` `BarChart` (with `Cell`-colored bars via `categoryColor()` from `src/categoryColors.js`, a custom tooltip, `CartesianGrid`, `XAxis`/`YAxis`, wrapped in `ResponsiveContainer`). Shows an empty-state message when there are no expense transactions.
 - `src/TransactionForm.jsx` — owns its own local state for the form fields (`description`, `amount`, `type`, `category`). On submit, builds the new transaction object (including `id: Date.now()` and today's `date`) and calls the `onAddTransaction` prop rather than mutating `transactions` directly; resets its own fields afterward.
 - `src/TransactionList.jsx` — owns `filterType`/`filterCategory` state, filters the `transactions` prop client-side (no memoization), and renders the filter selects plus the transactions table. Each row has a Delete button that confirms via `window.confirm` before calling the `onDeleteTransaction` prop with the transaction's `id`.
 - `src/App.css` / `src/index.css` — styling, plain CSS (no CSS-in-JS, no Tailwind).
@@ -36,7 +36,7 @@ Data flow is one-way, standard "lift state up" pattern: `App` holds the single s
 
 - `recharts` — charting library, used only by `SpendingChart.jsx`.
 
-State shape: `transactions` is an array of `{ id, description, amount, type, category, date }`. The seeded sample data in `App.jsx` uses numeric `amount` values, but transactions added through `TransactionForm` store `amount` as a **string** (raw value from the number input) — this inconsistency matters if arithmetic is ever done directly on `t.amount` without coercion.
+State shape: `transactions` is an array of `{ id, description, amount, type, category, date }`. `amount` is always numeric — both the seeded sample data in `App.jsx` and `TransactionForm.jsx` (which coerces the raw input string via `Number(amount)` before calling `onAddTransaction`) store it that way.
 
 `type` is `"income" | "expense"`; `category` is a free-form string drawn from the fixed `categories` array owned by `App.jsx`.
 

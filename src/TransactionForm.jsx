@@ -5,15 +5,31 @@ function TransactionForm({ categories, onAddTransaction }) {
   const [amount, setAmount] = useState("");
   const [type, setType] = useState("expense");
   const [category, setCategory] = useState("food");
+  const [error, setError] = useState("");
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (!description || !amount) return;
+    const trimmedDescription = description.trim();
+    const numericAmount = Number(amount);
 
+    if (!trimmedDescription) {
+      setError("Description is required.");
+      return;
+    }
+    if (!amount || Number.isNaN(numericAmount)) {
+      setError("Enter a valid amount.");
+      return;
+    }
+    if (numericAmount <= 0) {
+      setError("Amount must be greater than zero.");
+      return;
+    }
+
+    setError("");
     onAddTransaction({
       id: Date.now(),
-      description,
-      amount,
+      description: trimmedDescription,
+      amount: numericAmount,
       type,
       category,
       date: new Date().toISOString().split('T')[0],
@@ -28,6 +44,7 @@ function TransactionForm({ categories, onAddTransaction }) {
   return (
     <div className="glass add-transaction">
       <h2 className="card-heading">Add Transaction</h2>
+      {error && <p className="form-error" role="alert">{error}</p>}
       <form onSubmit={handleSubmit}>
         <input
           type="text"

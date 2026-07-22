@@ -165,6 +165,12 @@
   flex-wrap: wrap;
 }
 
+.form-error {
+  color: var(--expense);
+  font-size: 0.85rem;
+  margin-bottom: 12px;
+}
+
 .add-transaction input,
 .add-transaction select,
 .filters select {
